@@ -121,14 +121,13 @@ class ConvOffset2D(nn.Conv2d):
         x = self._to_bc_h_w(x, x_shape)
 
         # X_offset: (b*c, h, w)
-        x_offset = th_batch_map_offsets(x, offsets, grid=self._get_grid(self,x))
+        x_offset = th_batch_map_offsets(x, offsets, grid=self._get_grid(x))
 
         # x_offset: (b, h, w, c)
         x_offset = self._to_b_c_h_w(x_offset, x_shape)
 
         return x_offset
 
-    @staticmethod
     def _get_grid(self, x):
         batch_size, input_height, input_width = x.size(0), x.size(1), x.size(2)
         dtype, cuda = x.data.type(), x.data.is_cuda

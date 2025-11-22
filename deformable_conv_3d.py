@@ -89,20 +89,18 @@ def batch_map_coordinates(input, coords, order=1):
     # trilinear interpolation
     # https://en.wikipedia.org/wiki/Trilinear_interpolation
     coords_offset_lta = coords - coords_lta.type(coords.data.type())
-    coords_offset_rbp = coords - coords_rbp.type(coords.data.type())
 
+    # Interpolate along depth (dimension 0) for 4 edges
     vals_ta = coords_offset_lta[..., 0]*(vals_rta - vals_lta) + vals_lta
     vals_ba = coords_offset_lta[..., 0]*(vals_rba - vals_lba) + vals_lba
-    
-    vals_tp = coords_offset_rbp[..., 0]*(vals_rtp - vals_ltp) + vals_ltp
-    vals_bp = coords_offset_rbp[..., 0]*(vals_rbp - vals_lbp) + vals_lbp
+    vals_tp = coords_offset_lta[..., 0]*(vals_rtp - vals_ltp) + vals_ltp
+    vals_bp = coords_offset_lta[..., 0]*(vals_rbp - vals_lbp) + vals_lbp
 
-    # interpolate top
+    # Interpolate along width (dimension 2) for 2 faces
     vals_t = coords_offset_lta[..., 2]* (vals_tp - vals_ta) + vals_ta
-    
-    # interpolate bottom
-    vals_b = coords_offset_rbp[..., 2]* (vals_bp - vals_ba) + vals_ba
-    
+    vals_b = coords_offset_lta[..., 2]* (vals_bp - vals_ba) + vals_ba
+
+    # Interpolate along height (dimension 1) for final value
     mapped_vals = coords_offset_lta[..., 1] * (vals_b - vals_t) + vals_t
     return mapped_vals
 
@@ -201,14 +199,13 @@ class ConvOffset3D(nn.Conv3d):
         x = self._to_bc_d_h_w(x, x_shape)
 
         # X_offset: (b*c, d, h, w)
-        x_offset = batch_map_offsets(x, offsets, grid=self._get_grid(self,x))
+        x_offset = batch_map_offsets(x, offsets, grid=self._get_grid(x))
 
         # x_offset: (b, d, h, w, c)
         x_offset = self._to_b_c_d_h_w(x_offset, x_shape)
 
         return x_offset
 
-    @staticmethod
     def _get_grid(self, x):
         batch_size, input_depth, input_height, input_width = x.size(0), x.size(1), x.size(2), x.size(3)
         dtype, cuda = x.data.type(), x.data.is_cuda
