@@ -1,0 +1,15 @@
+# Include important metadata files
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include package marker
+include deform_conv/py.typed
+
+# Include tests
+recursive-include tests *.py
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
