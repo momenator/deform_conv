@@ -1,5 +1,5 @@
 """Deformable 2D convolution
-Taken from https://github.com/oeway/pytorch-deform-conv/
+Adapted from https://github.com/oeway/pytorch-deform-conv/
 """
 import torch
 import torch.nn as nn
