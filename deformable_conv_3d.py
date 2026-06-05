@@ -1,7 +1,3 @@
-"""Deformable 3D convolution
-Adapted from https://github.com/oeway/pytorch-deform-conv/
-"""
-
 import torch
 import torch.nn as nn
 import numpy as np
